@@ -1,0 +1,29 @@
+apiVersion: k8gb.absa.oss/v1beta1
+kind: Gslb
+metadata:
+  name: {{ .Chart.Name }}-ingress-gslb
+  labels:
+    app: {{ .Chart.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    helm.sh/chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+spec:
+  ingress:
+    ingressClassName: nginx
+    rules:
+    - host: glsb-{{ .Values.workload.domainname }}
+      http:
+        paths:
+        - path: /healthservice/ # The path prefix MUST NOT overlap with any other ingress definition of another exposed service
+          pathType: Prefix
+          backend:
+            service:
+              name: {{ .Chart.Name }}-service
+              port:
+                number: {{ .Values.workload.service.port | default 80 }}
+  strategy:
+    type: roundRobin # Global load balancing strategy
+    dnsTtlSeconds: 5
+    weight:
+      swedencentral: 80%
+      uksouth: 20%
