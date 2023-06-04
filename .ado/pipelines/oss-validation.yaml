@@ -1,0 +1,40 @@
+name: '$(BuildDefinitionName).$(DayOfYear)$(Rev:.r)'
+
+trigger: none
+
+pr: none
+
+pool:
+  vmImage: 'ubuntu-20.04'
+
+variables:
+- name:  'workingDirectory'
+  value: 'src/app/ReactFlowTest'
+
+stages:
+
+- stage: buildApp
+  displayName: 'Build application'
+  jobs:
+    - job: appBuild
+      displayName: 'Build application'
+      steps:
+      - checkout: self # checkout github repository
+
+      - task: ComponentGovernanceComponentDetection@0
+
+      - task: PowerShell@2
+        displayName: 'Yarn install'
+        inputs:
+          workingDirectory: '$(workingDirectory)'
+          targetType: inline
+          script: |
+            yarn install
+
+      - task: PowerShell@2
+        displayName: 'Yarn install'
+        inputs:
+          workingDirectory: '$(workingDirectory)'
+          targetType: inline
+          script: |
+            yarn build
